@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>jQuery Student Management</title>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f5f5f5;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+        }
+
+        input,
+        select,
+        button {
+            padding: 10px;
+            margin: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .active {
+            color: green;
+            font-weight: bold;
+        }
+
+        .inactive {
+            color: red;
+            font-weight: bold;
+        }
+
+        .error {
+            color: red;
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h2>Student Management</h2>
+
+        <!-- Student Form -->
+
+        <form id="studentForm">
+
+            <input type="text" id="name" name="name" placeholder="Student Name">
+
+            <input type="email" id="email" name="email" placeholder="Email">
+
+            <input type="text" id="phone" name="phone" placeholder="Phone">
+
+            <select id="course" name="course">
+                <option value="">Select Course</option>
+                <option value="Laravel">Laravel</option>
+                <option value="React">React</option>
+                <option value="Vue">Vue</option>
+            </select>
+
+            <button type="submit" id="saveBtn">
+                Add Student
+            </button>
+
+            <button type="button" id="clearBtn">
+                Clear
+            </button>
+
+        </form>
+
+        <div id="error" class="error"></div>
+
+        <hr>
+
+        <!-- Search -->
+
+        <input type="text" id="search" placeholder="Search student...">
+
+        <button type="button" id="showAll">
+            Show All
+        </button>
+
+        <h3>
+            Total Students:
+            <span id="totalStudents">0</span>
+        </h3>
+
+        <!-- Student Table -->
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Course</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="studentList">
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <script>
+
+        $(document).ready(function () {
+
+            let students = [];
+
+            let editIndex = null;
+
+
+            // =========================
+            // FORM SUBMIT
+            // =========================
+
+            $('#studentForm').submit(function (e) {
+
+                e.preventDefault();
+
+                $('#error').text('');
+
+                let name = $('#name').val().trim();
+                let email = $('#email').val().trim();
+                let phone = $('#phone').val().trim();
+                let course = $('#course').val();
+
+
+                // =========================
+                // VALIDATION
+                // =========================
+
+                if (name === '') {
+
+                    $('#error').text('Name is required');
+
+                    $('#name').focus();
+
+                    return;
+                }
+
+
+                if (email === '') {
+
+                    $('#error').text('Email is required');
+
+                    $('#email').focus();
+
+                    return;
+                }
+
+
+                if (phone === '') {
+
+                    $('#error').text('Phone is required');
+
+                    $('#phone').focus();
+
+                    return;
+                }
+
+
+                if (course === '') {
+
+                    $('#error').text('Please select course');
+
+                    $('#course').focus();
+
+                    return;
+                }
+
+
+                // =========================
+                // SERIALIZE
+                // =========================
+
+                let formData = $(this).serialize();
+
+                console.log('Serialized Data:');
+
+                console.log(formData);
+
+
+                // =========================
+                // CREATE STUDENT OBJECT
+                // =========================
+
+                let student = {
+
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    course: course,
+                    status: 'Active'
+
+                };
+
+
+                // =========================
+                // ADD / UPDATE
+                // =========================
+
+                if (editIndex === null) {
+
+                    students.push(student);
+
+                } else {
+
+                    students[editIndex] = student;
+
+                    editIndex = null;
+
+                    $('#saveBtn').text('Add Student');
+
+                }
+
+
+                // =========================
+                // RESET FORM
+                // =========================
+
+                $('#studentForm')[0].reset();
+
+
+                // =========================
+                // DISPLAY STUDENTS
+                // =========================
+
+                renderStudents();
+
+            });
+
+
+            // =========================
+            // RENDER STUDENTS
+            // =========================
+
+            function renderStudents(list = students) {
+
+                $('#studentList').empty();
+
+
+                if (list.length === 0) {
+
+                    $('#studentList').html(`
+                <tr>
+                    <td colspan="7">
+                        No students found
+                    </td>
+                </tr>
+                 `);
+
+                    $('#totalStudents').text(0);
+
+                    return;
+                }
+
+
+                $.each(list, function (index, student) {
+
+                    let originalIndex = students.indexOf(student);
+
+
+                    $('#studentList').append(`
+
+                <tr>
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${student.name}
+                    </td>
+
+                    <td>
+                        ${student.email}
+                    </td>
+
+                    <td>
+                        ${student.phone}
+                    </td>
+
+                    <td>
+                        ${student.course}
+                    </td>
+
+                    <td>
+
+                        <span
+                            class="${student.status === 'Active'
+                            ? 'active'
+                            : 'inactive'}"
+                        >
+
+                            ${student.status}
+
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="editBtn"
+                            data-index="${originalIndex}"
+                        >
+                            Edit
+                        </button>
+
+                        <button
+                            class="deleteBtn"
+                            data-index="${originalIndex}"
+                        >
+                            Delete
+                        </button>
+
+                        <button
+                            class="statusBtn"
+                            data-index="${originalIndex}"
+                        >
+                            Toggle Status
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `);
+
+                });
+
+
+                $('#totalStudents').text(list.length);
+
+            }
+
+
+            // =========================
+            // SEARCH
+            // =========================
+
+            $('#search').keyup(function () {
+
+                let keyword = $(this).val().toLowerCase();
+
+
+                let filteredStudents = students.filter(function (student) {
+
+                    return (
+
+                        student.name.toLowerCase().includes(keyword)
+
+                        ||
+
+                        student.email.toLowerCase().includes(keyword)
+
+                        ||
+
+                        student.course.toLowerCase().includes(keyword)
+
+                    );
+
+                });
+
+
+                renderStudents(filteredStudents);
+
+            });
+
+
+            // =========================
+            // SHOW ALL
+            // =========================
+
+            $('#showAll').click(function () {
+
+                $('#search').val('');
+
+                renderStudents();
+
+            });
+
+
+            // =========================
+            // DELETE
+            // =========================
+
+            $(document).on('click', '.deleteBtn', function () {
+
+                let index = $(this).data('index');
+
+
+                if (confirm('Are you sure you want to delete?')) {
+
+                    students.splice(index, 1);
+
+                    renderStudents();
+
+                }
+
+            });
+
+
+            // =========================
+            // EDIT
+            // =========================
+
+            $(document).on('click', '.editBtn', function () {
+
+                let index = $(this).data('index');
+
+                let student = students[index];
+
+
+                $('#name').val(student.name);
+
+                $('#email').val(student.email);
+
+                $('#phone').val(student.phone);
+
+                $('#course').val(student.course);
+
+
+                editIndex = index;
+
+
+                $('#saveBtn').text('Update Student');
+
+
+                $('#name').focus();
+
+            });
+
+
+            // =========================
+            // TOGGLE STATUS
+            // =========================
+
+            $(document).on('click', '.statusBtn', function () {
+
+                let index = $(this).data('index');
+
+
+                if (students[index].status === 'Active') {
+
+                    students[index].status = 'Inactive';
+
+                } else {
+
+                    students[index].status = 'Active';
+
+                }
+
+
+                renderStudents();
+
+            });
+
+
+            // =========================
+            // CLEAR FORM
+            // =========================
+
+            $('#clearBtn').click(function () {
+
+                $('#studentForm')[0].reset();
+
+                $('#error').text('');
+
+                editIndex = null;
+
+                $('#saveBtn').text('Add Student');
+
+            });
+
+
+        });
+
+    </script>
+
+</body>
+
+</html>

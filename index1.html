@@ -1,0 +1,91 @@
+<!-- <!DOCTYPE html>
+<html>
+
+<head>
+    <title>Car Animation</title>
+
+    <style>
+        body {
+            margin: 0;
+        }
+
+        /* Road / background */
+        #road {
+            width: 100%;
+            height: 400px;
+
+            background-image: url("images/hero-bg-1.jpg");
+            background-size: cover;
+            background-position: center;
+
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Car */
+        #car {
+            position: absolute;
+            left: 0;
+            bottom: 80px;
+            width: 200px;
+        }
+
+        .buttons {
+            margin: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="road">
+
+        <img
+            id="car"
+            src="images/"
+            alt="Car"
+        >
+
+    </div>
+
+    <div class="buttons">
+
+        <button id="start">Start</button>
+
+        <button id="reverse">Reverse</button>
+
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script>
+
+        $(function () {
+
+            // Car forward
+            $("#start").click(function () {
+
+                $("#car").animate({
+                    left: "1000px"
+                }, 3000);
+
+            });
+
+
+            // Car reverse
+            $("#reverse").click(function () {
+
+                $("#car").animate({
+                    left: "0px"
+                }, 3000);
+
+            });
+
+        });
+
+    </script>
+
+</body>
+
+</html> -->
